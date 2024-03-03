@@ -1,4 +1,5 @@
 import pygame
+import tkinter as tk
 
 pygame.init()
 WIDTH = 600
@@ -37,11 +38,32 @@ def calc_size():
         a += c[0] * n_c[1] - n_c[0] * c[1]
     return a / 2 / (UNIT ** 2)
 
+def check_guess():
+    global root
+    number = -1
+    try:
+        number = float(entry.get())
+    except ValueError:
+        pass
+
+    if number >= 0:
+        root.destroy()
+        root = tk.Tk()
+        root.title("Outcome of your guess.")
+        text_label = tk.Label(root, text=f"You guessed {number} and the actual area was {round(calc_size(), 2)}")
+        text_label.pack()
+        root.geometry("450x70")
 
 corners = []
 
 m = None
 n = None
+
+root = tk.Tk()
+root.title("Guess the area of the shape you have drawn.")
+root.withdraw()
+
+guessed = False
 
 running = True
 while running:
@@ -61,7 +83,6 @@ while running:
                     num_overlap = len(set(x for x in corners if overlap(pos, x)))
                     if len(set(x for x in corners if overlap(pos, x))) == 1:
                         if overlap(pos, corners[0]):
-                            print(calc_size())
                             is_shape_finished = True
                     elif not is_shape_finished:
                         m = None
@@ -97,5 +118,18 @@ while running:
         pygame.draw.line(screen, (255, 0, 255), m, n)
 
     pygame.display.flip()
+
+    if is_shape_finished and not guessed:
+        root.deiconify()
+
+        entry = tk.Entry(root)
+        entry.pack(pady=10)
+
+        button = tk.Button(root, text="Submit guess", command=check_guess)
+        button.pack()
+        root.geometry("450x70")
+
+        guessed = True
+    root.update()
 
 pygame.quit()
